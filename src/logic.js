@@ -1,3 +1,18 @@
+
+const get = require("lodash.get")
+
+function extractValuePath(ast) {
+    if (ast.type === "Identifier") {
+        return ast.name;
+    } else if (ast.type === "MemberExpression") {
+        const obj = extractValuePath(ast.object);
+        const prop = extractValuePath(ast.property);
+        return obj ? `${obj}.${prop}` : prop;
+    } else {
+        throw new Error(`Unexpected AST node type: ${ast.type}`);
+    }
+}
+
 function logic(json, options) {
 
     let parsed = null
@@ -176,8 +191,26 @@ function logic(json, options) {
             case 'MemberExpression':
                 const object = evaluate(node.object);
                 const propertyName = evaluate(node.property);
-
-                return object[propertyName];
+                const path = extractValuePath(node.object)
+                let value = undefined
+                if (path.includes('.') && typeof propertyName === 'undefined' && typeof path !== 'undefined') {
+                    value = get(output, `${path}.${node.property.name}`)
+                }
+                else {
+                    value = object[propertyName]
+                };
+                return value
+            case 'LogicalExpression':
+                const leftVal = evaluate(node.left);
+                const rightVal = evaluate(node.right);
+                switch (node.operator) {
+                    case '||':
+                        return leftVal || rightVal;
+                    case '&&':
+                        return leftVal && rightVal;
+                    default:
+                        throw new Error(`Unsupported logical operator: ${node.operator}`);
+                }
             default:
                 throw new Error(`Unsupported node type: ${node.type}`);
         }
