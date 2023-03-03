@@ -1,13 +1,10 @@
 {
   "name": "strivex",
-  "version": "0.0.1-b.2",
+  "version": "0.0.1-b.3",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "run-server": "node ws_server/server.js",
-    "run-ws-client": "node ws_server/client.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
@@ -15,5 +12,9 @@
     "escodegen": "^2.0.0",
     "lodash.get": "^4.4.2",
     "ws": "^8.12.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/XStrive/StriveX.git"
   }
 }
