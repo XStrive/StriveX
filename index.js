@@ -1,4 +1,5 @@
 const { logic, transform, normalizer } = require('./src/index')
+
 const calculatorLogic = require('./docs/examples/ast/calc.json');
 const calculatorLogicParams = require( './docs/examples/ast/calc_params.json');
 const fibonacci = require( './docs/examples/ast/fibonacci.json')
@@ -48,12 +49,15 @@ const transformResponse = transform({
 
 
 const resultCalcLogic = logic(calculatorLogic)
-const resultCalcWithparams = logic(calculatorLogicParams)(20, 10)
-const resultFibonacci = logic(fibonacci)(10)
-const resultResponse = logic(handleResponse)({ node: { status: 400 } })
+const resultCalcWithparams = logic(calculatorLogicParams)(5, 2)
+const resultFibonacci = logic(fibonacci)(30)
+const resultResponse = logic(handleResponse)({ node: { status: 400 } }) // 200 -> Success -> 400 -> Bad Request
+
+
 console.log("resultCalcLogic", resultCalcLogic);
 console.log("resultCalcWithparams", resultCalcWithparams);
 console.log("resultFibonacci", resultFibonacci)
 console.log("resultResponse", resultResponse)
 console.log("normalizer", normalizerResponse)
 console.log("transform", transformResponse)
+

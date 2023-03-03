@@ -5,11 +5,15 @@
   "main": "normalizeTest.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "run-server": "node ws_server/server.js",
+    "run-ws-client": "node ws_server/client.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "lodash.get": "^4.4.2"
+    "escodegen": "^2.0.0",
+    "lodash.get": "^4.4.2",
+    "ws": "^8.12.1"
   }
 }
