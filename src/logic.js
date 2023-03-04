@@ -211,6 +211,12 @@ function logic(json, options) {
                     default:
                         throw new Error(`Unsupported logical operator: ${node.operator}`);
                 }
+            case 'VariableDeclarator':
+                const varName = node.id.name;
+                const varValue = evaluate(node.init);
+                output[varName] = varValue;
+                return varValue;
+                
             default:
                 throw new Error(`Unsupported node type: ${node.type}`);
         }
