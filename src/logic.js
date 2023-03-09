@@ -13,25 +13,35 @@ function extractValuePath(ast) {
     }
 }
 
-function logic(json, options) {
+function logic(json, options, envScope = {}) {
 
     let parsed = null
     if (options?.stringify) parsed = JSON.parse(json)
     else parsed = json
     var output = {}
 
-    function evaluate(node, scope) {
+    function evaluate(node, scope = envScope) {
 
         if (typeof scope !== 'undefined') output = {
             ...output,
             ...scope
         }
-        switch (node.type) {
+        if(typeof node?.type === 'undefined') return null
+        switch (node?.type) {
             case 'Program':
-                return evaluate(node.body[0]);
+                if (node.body.length > 1) {
+                    for (let i = 0; i<=node.body.length - 1; i++) {
+                        if(i == node.body.length - 1) {
+                            return evaluate(node.body[i]);
+                        } else {
+                            evaluate(node.body[i]);
+                        }
+                    }
+                } else {
+                    return evaluate(node.body[0]);
+                }
             case 'ExpressionStatement':
                 const expressionResponse = evaluate(node.expression);
-
                 return expressionResponse
             case 'AssignmentExpression':
                 const assignmentValue = evaluate(node.right);
@@ -74,6 +84,8 @@ function logic(json, options) {
                 const left = evaluate(node.left);
                 const right = evaluate(node.right);
                 switch (node.operator) {
+                    case '==':
+                        return left == right;
                     case '===':
                         return left === right;
                     case '!==':
@@ -113,7 +125,7 @@ function logic(json, options) {
                 node.declarations.forEach(declaration => {
                     output = {
                         ...output,
-                        [declaration.id.name]: evaluate(declaration.init)
+                        [declaration.id.name]: evaluate(declaration?.init)
                     }
                 });
                 return output;
@@ -152,12 +164,21 @@ function logic(json, options) {
                 });
                 return switchOutput;
             case 'CallExpression':
-                const fn = evaluate(node.callee);
+                const pathCallee = extractValuePath(node.callee)
                 const args = node.arguments.map(evaluate);
-                if (typeof fn !== 'function') {
-                    throw new Error(`${node.callee.name} is not a function`);
+                if(pathCallee){
+                    const fn = get(output, pathCallee)
+                    if (typeof fn !== 'function') {
+                        throw new Error(`${node.callee.name} is not a function`);
+                    }
+                    return fn(...args);
+                }else {
+                    const fn = evaluate(node.callee);
+                    if (typeof fn !== 'function') {
+                        throw new Error(`${node.callee.name} is not a function`);
+                    }
+                    return fn(...args);
                 }
-                return fn(...args);
             case 'FunctionDeclaration':
                 const func = function (...args) {
                     const newScope = Object.create(output);
@@ -213,12 +234,12 @@ function logic(json, options) {
                 }
             case 'VariableDeclarator':
                 const varName = node.id.name;
-                const varValue = evaluate(node.init);
+                const varValue = evaluate(node?.init);
                 output[varName] = varValue;
                 return varValue;
                 
             default:
-                throw new Error(`Unsupported node type: ${node.type}`);
+                throw new Error(`Unsupported node type: ${node?.type}`);
         }
     }
     return evaluate(parsed)

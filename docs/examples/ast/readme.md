@@ -32,3 +32,12 @@ function fib(n) {
 function calc(a, b) {
     return a * b;
 }
+
+## Hello World 
+
+var Count;
+Count = 1;
+while (Count <= 3) {
+    console.log('Hello World!');
+    Count = Count + 1;
+}
